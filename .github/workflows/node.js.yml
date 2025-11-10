@@ -32,6 +32,9 @@ jobs:
       - name: Build (构建项目)
         # 运行 build 命令，它会生成 dist 文件夹
         run: npm run build 
+
+      - name: Create 404.html for SPA fallback
+        run: cp dist/index.html dist/404.html
         
       - name: Upload artifact (上传构建产物)
         # 将 build 步骤生成的 dist 文件夹打包上传，供 deploy 任务使用
