@@ -4,7 +4,7 @@
 export const mockUser = {
   id: 'u1',
   name: '覃航海',
-  avatarUrl: '/spi.jpg',
+  avatarUrl: '${import.meta.env.BASE_URL}spi.jpg',
   major: '软件工程',
   grade: '大三',
   skills: ['Java', 'Spring Boot', 'MySQL', 'Vue.js', 'UI/UX设计', 'React'],
