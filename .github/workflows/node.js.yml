@@ -1,0 +1,62 @@
+# 1. 工作流的名称
+name: Deploy Vite Project to GitHub Pages
+
+on:
+  # 2. 触发条件：只在代码被 push 到 "main" 分支时触发
+  push:
+    branches: [ "main" ]
+
+# 3. 权限设置：允许 Action 修改你的仓库（为了部署）
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  # 4. 第一个任务：构建项目
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (检出代码)
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js (设置Node.js环境)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # 我们只需要一个版本，20.x很稳定
+          cache: 'npm'
+          
+      - name: Install dependencies (安装依赖)
+        run: npm install # 使用 npm install 更通用
+        
+      - name: Build (构建项目)
+        # 运行 build 命令，它会生成 dist 文件夹
+        run: npm run build 
+        
+      - name: Upload artifact (上传构建产物)
+        # 将 build 步骤生成的 dist 文件夹打包上传，供 deploy 任务使用
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # 指向 Vite 的构建输出目录
+
+  # 5. 第二个任务：部署项目
+  deploy:
+    # 必须等待 "build" 任务成功完成后才能运行
+    needs: build 
+    
+    # 部署任务需要的权限
+    permissions:
+      pages: write
+      id-token: write
+      
+    # 设置部署环境
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }} # 告知 Action 部署的 URL
+      
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages (部署到 GitHub Pages)
+        id: deployment
+        uses: actions/deploy-pages@v4
+        # (这个 Action 会自动下载 "build" 任务上传的产物并部署)
